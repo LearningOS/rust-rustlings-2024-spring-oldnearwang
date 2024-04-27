@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -38,6 +37,18 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.count += 1;
+        self.items.push(value);
+
+        // 从最后一个元素开始向上调整堆
+        let mut idx = self.count;
+        while self.parent_idx(idx) > 0 {
+            let pdx = self.parent_idx(idx);
+            if (self.comparator)(&self.items[idx], &self.items[pdx]) {
+                self.items.swap(idx, pdx);
+            }
+            idx = pdx;
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +69,17 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        if self.right_child_idx(idx) > self.count {
+            self.left_child_idx(idx)
+        } else {
+            let ldx = self.left_child_idx(idx);
+            let rdx = self.right_child_idx(idx);
+            if (self.comparator)(&self.items[ldx], &self.items[rdx]) {
+                ldx // 左孩子较小
+            } else {
+                rdx // 右孩子较小
+            }
+        }
     }
 }
 
@@ -84,8 +105,25 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            None
+        } else {
+            // 将根节点与最后一个元素交换
+            self.items.swap(1, self.count);
+            self.count -= 1;
+
+            // 从根节点开始向下调整堆
+            let mut idx = 1;
+            while self.children_present(idx) {
+                let cdx = self.smallest_child_idx(idx);
+                if !(self.comparator)(&self.items[idx], &self.items[cdx]) {
+                    self.items.swap(idx, cdx);
+                }
+                idx = cdx;
+            }
+
+            Some(self.items.pop().unwrap())
+        }
     }
 }
 
